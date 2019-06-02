@@ -14,7 +14,7 @@ class Flasher
 
   def set_usbasp
     @programmer = 'usbasp'
-    @extra_params = '-v'
+    @extra_params = '-B 2 -v'
   end
 
   def flash(items)
@@ -39,8 +39,8 @@ class Flasher
 
   def make_avrisp_mkii_clone
     fw_file = 'AVRISP-MKII_ATmega32u4/AVRISP-MKII_ATmega32U4.hex'
-    items = dfu_fuses.merge(flash: fw_file)
-    flash(items)
+    #items = dfu_fuses.merge(flash: fw_file)
+    flash_file(fw_file)
   end
 
   def flash_dfu_bootloader
@@ -51,8 +51,8 @@ class Flasher
 
   def flash_iris_r3
     files = {
-      flash: 'iris-r3/dump.hex',
-      eeprom: 'iris-r3/dump.eep'
+      flash: 'iris-r3/keebio_iris_rev3_via_production.hex',
+      eeprom: 'iris-r3/20190602_iris.eep'
     }
     items = dfu_fuses.merge(files)
     flash(items)
@@ -75,9 +75,9 @@ end
 # TODO: Add params to select action
 
 flasher = Flasher.new()
-#flasher.set_avrispmkii
-flasher.view_device_info
+flasher.set_avrispmkii
+#flasher.view_device_info
 #flasher.flash_dfu_bootloader
-flasher.make_avrisp_mkii_clone
+#flasher.make_avrisp_mkii_clone
 #flasher.flash_file('/Users/danny/syncproj/qmk/keebio_levinson_rev3_bakingpy.hex')
-#flasher.flash_iris_r3
+flasher.flash_iris_r3
