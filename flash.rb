@@ -33,6 +33,22 @@ class Flasher
     `#{cmd}`
   end
 
+  def read(items)
+    cmd = "avrdude -p #{@mcu} -c #{@programmer}"
+    unless @port.nil?
+      cmd << " -P #{@port}"
+    end
+    unless @extra_params.nil?
+      cmd << " #{@extra_params}"
+    end
+
+    items.each do |memtype, filename|
+      cmd << " -U #{memtype}:r:#{filename}:i"
+    end
+    puts cmd
+    `#{cmd}`
+  end
+
   def dfu_fuses
     { lfuse: '0x5e:m', hfuse: '0xd9:m', efuse: '0xc3:m' }
   end
@@ -52,7 +68,7 @@ class Flasher
   def flash_iris_r3
     files = {
       flash: 'iris-r3/keebio_iris_rev3_via_production.hex',
-      eeprom: 'iris-r3/20190602_iris.eep'
+      eeprom: 'iris-r3/20190603_iris.eep'
     }
     items = dfu_fuses.merge(files)
     flash(items)
@@ -69,6 +85,10 @@ class Flasher
 
   def flash_file(file)
     flash(flash: file)
+  end
+
+  def read_eeprom(output_file)
+    read(eeprom: output_file)
   end
 end
 
