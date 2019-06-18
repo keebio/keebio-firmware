@@ -67,11 +67,15 @@ class Flasher
 
   def flash_iris_r3
     files = {
-      flash: 'iris-r3/keebio_iris_rev3_via_production.hex',
-      eeprom: 'iris-r3/20190603_iris.eep'
+      flash: "#{__dir__}/iris-r3/keebio_iris_rev3_via_production.hex",
+      eeprom: "#{__dir__}/iris-r3/20190603_iris.eep"
     }
     items = dfu_fuses.merge(files)
     flash(items)
+  end
+
+  def flash_iris_r3_eeprom
+    flash(eeprom: 'iris-r3/20190603_iris.eep')
   end
 
   def flash_usbasp
@@ -101,3 +105,4 @@ flasher.set_avrispmkii
 #flasher.make_avrisp_mkii_clone
 #flasher.flash_file('/Users/danny/syncproj/qmk/keebio_levinson_rev3_bakingpy.hex')
 flasher.flash_iris_r3
+#flasher.flash_iris_r3_eeprom
