@@ -55,7 +55,7 @@ class Flasher
 
   def make_avrisp_mkii_clone
     fw_file = 'AVRISP-MKII_ATmega32u4/AVRISP-MKII_ATmega32U4.hex'
-    #items = dfu_fuses.merge(flash: fw_file)
+    items = dfu_fuses.merge(flash: fw_file)
     flash_file(fw_file)
   end
 
@@ -74,17 +74,17 @@ class Flasher
     flash(items)
   end
 
+  def flash_iris_r3_eeprom
+    flash(eeprom: 'iris-r3/20190603_iris.eep')
+  end
+
   def flash_nyquist_r3
     files = {
       flash: "#{__dir__}/nyquist-r3/keebio_nyquist_rev3_default_production.hex",
-      eeprom: "#{__dir__}/nyquist-r3/20190816_nyquist.eep"
+      #eeprom: "#{__dir__}/nyquist-r3/20190603_iris.eep"
     }
     items = dfu_fuses.merge(files)
     flash(items)
-  end
-
-  def flash_iris_r3_eeprom
-    flash(eeprom: 'iris-r3/20190603_iris.eep')
   end
 
   def flash_usbasp
@@ -108,11 +108,10 @@ end
 # TODO: Add params to select action
 
 flasher = Flasher.new()
-flasher.set_avrispmkii
+#flasher.set_usbasp
 #flasher.view_device_info
-#flasher.flash_dfu_bootloader
-#flasher.make_avrisp_mkii_clone
+flasher.make_avrisp_mkii_clone
+flasher.flash_dfu_bootloader
 #flasher.flash_file('/Users/danny/syncproj/qmk/keebio_levinson_rev3_bakingpy.hex')
 #flasher.flash_iris_r3
 #flasher.flash_iris_r3_eeprom
-flasher.flash_nyquist_r3
