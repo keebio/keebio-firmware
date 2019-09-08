@@ -10,6 +10,7 @@ class Flasher
   def set_avrispmkii
     @programmer = 'avrispmkii'
     @extra_params = '-B 2 -v'
+    @extra_params = '-B 2'
   end
 
   def set_usbasp
@@ -17,7 +18,7 @@ class Flasher
     @extra_params = '-B 2 -v'
   end
 
-  def flash(items)
+  def flash(items, quiet = false)
     cmd = "avrdude -p #{@mcu} -c #{@programmer}"
     unless @port.nil?
       cmd << " -P #{@port}"
@@ -29,11 +30,16 @@ class Flasher
     items.each do |memtype, filename|
       cmd << " -U #{memtype}:w:#{filename}"
     end
-    puts cmd
+    if quiet
+      cmd << " -l /dev/null"
+    else
+      puts cmd
+    end
     `#{cmd}`
+    $?.success?
   end
 
-  def read(items)
+  def read(items, quiet = false)
     cmd = "avrdude -p #{@mcu} -c #{@programmer}"
     unless @port.nil?
       cmd << " -P #{@port}"
@@ -45,8 +51,13 @@ class Flasher
     items.each do |memtype, filename|
       cmd << " -U #{memtype}:r:#{filename}:i"
     end
-    puts cmd
+    if quiet
+      cmd << " -l /dev/null"
+    else
+      puts cmd
+    end
     `#{cmd}`
+    $?.success?
   end
 
   def dfu_fuses
@@ -81,7 +92,7 @@ class Flasher
   def flash_nyquist_r3
     files = {
       flash: "#{__dir__}/nyquist-r3/keebio_nyquist_rev3_default_production.hex",
-      #eeprom: "#{__dir__}/nyquist-r3/20190603_iris.eep"
+      eeprom: "#{__dir__}/nyquist-r3/20190816_nyquist.eep"
     }
     items = dfu_fuses.merge(files)
     flash(items)
@@ -96,6 +107,10 @@ class Flasher
     flash({})
   end
 
+  def device_connected?
+    flash({}, quiet = true)
+  end
+
   def flash_file(file)
     flash(flash: file)
   end
@@ -103,15 +118,43 @@ class Flasher
   def read_eeprom(output_file)
     read(eeprom: output_file)
   end
+
+  def show_searching_message
+    print '🔎  Searching for device (press Ctrl-C to stop).'
+  end
+
+  def bulk_flash(command, interval = 0.5)
+    show_searching_message
+    while true do
+      success = device_connected?
+      if success
+        puts
+        puts '🆗  Device found, flashing...'
+        command.call
+        if $?.success?
+          puts '✅  Device flashed successfully, disconnect'
+        else
+          puts '🛑  Device flashing unsuccessful, try again'
+        end
+        sleep 3
+        show_searching_message
+      else
+        print '.'
+      end
+      sleep interval
+    end
+  end
 end
 
 # TODO: Add params to select action
 
 flasher = Flasher.new()
 #flasher.set_usbasp
+flasher.set_avrispmkii
 #flasher.view_device_info
-flasher.make_avrisp_mkii_clone
-flasher.flash_dfu_bootloader
+#flasher.make_avrisp_mkii_clone
+#flasher.flash_dfu_bootloader
 #flasher.flash_file('/Users/danny/syncproj/qmk/keebio_levinson_rev3_bakingpy.hex')
 #flasher.flash_iris_r3
 #flasher.flash_iris_r3_eeprom
+flasher.bulk_flash(flasher.method(:flash_nyquist_r3))
