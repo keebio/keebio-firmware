@@ -122,6 +122,7 @@ class Flasher
     print '🔎  Searching for device (press Ctrl-C to stop).'
   end
 
+
   def bulk_flash(command, interval = 0.5)
     show_searching_message
     while true do
@@ -130,11 +131,13 @@ class Flasher
         puts
         puts '🆗  Device found, flashing...'
         command.call
-        if $?.success?
+        flash_success = $?.success?
+        if flash_success
           puts '✅  Device flashed successfully, disconnect'
         else
           puts '🛑  Device flashing unsuccessful, try again'
         end
+        play_status_sound(flash_success)
         sleep 3
         show_searching_message
       else
@@ -143,6 +146,17 @@ class Flasher
       sleep interval
     end
   end
+
+  def play_status_sound(success)
+    cmd = "afplay"
+    if success
+      cmd << " /System/Library/Sounds/Glass.aiff"
+    else
+      cmd << " /System/Library/Sounds/Sosumi.aiff"
+    end
+    `#{cmd}`
+  end
+
 end
 
 # TODO: Add params to select action

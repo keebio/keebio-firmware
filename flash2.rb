@@ -10,7 +10,7 @@ class Flasher
   def set_avrispmkii
     @programmer = 'avrispmkii'
     @extra_params = '-B 2 -v'
-    @extra_params = '-B 2'
+    #@extra_params = '-B 2'
   end
 
   def set_usbasp
@@ -119,6 +119,10 @@ class Flasher
     read(eeprom: output_file)
   end
 
+  def flash_eeprom(file)
+    flash(eeprom: file)
+  end
+
   def show_searching_message
     print '🔎  Searching for device (press Ctrl-C to stop).'
   end
@@ -131,11 +135,13 @@ class Flasher
         puts
         puts '🆗  Device found, flashing...'
         command.call
-        if $?.success?
+        flash_success = $?.success?
+        if flash_success
           puts '✅  Device flashed successfully, disconnect'
         else
           puts '🛑  Device flashing unsuccessful, try again'
         end
+        play_status_sound(flash_success)
         sleep 3
         show_searching_message
       else
@@ -144,6 +150,17 @@ class Flasher
       sleep interval
     end
   end
+
+  def play_status_sound(success)
+    cmd = "sudo afplay"
+    if success
+      cmd << " /System/Library/Sounds/Glass.aiff"
+    else
+      cmd << " /System/Library/Sounds/Sosumi.aiff"
+    end
+    `#{cmd}`
+  end
+
 end
 
 # TODO: Add params to select action
@@ -158,3 +175,5 @@ flasher.set_avrispmkii
 #flasher.flash_iris_r3
 #flasher.flash_iris_r3_eeprom
 flasher.bulk_flash(flasher.method(:flash_nyquist_r3))
+#flasher.read_eeprom('iris_rev4_default.hex')
+#flasher.flash_eeprom('iris_rev4_default.hex')
