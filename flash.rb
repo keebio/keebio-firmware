@@ -9,7 +9,7 @@ class Flasher
 
   def set_avrispmkii
     @programmer = 'avrispmkii'
-    @extra_params = '-B 2'
+    @extra_params = '-B 2 -v'
   end
 
   def set_usbasp
@@ -69,8 +69,14 @@ class Flasher
     flash_file(fw_file)
   end
 
-  def flash_dfu_bootloader
+  def flash_dfu_bootloader_lufa
     fw_file = 'BootloaderDFU-LUFA-32u4.hex'
+    items = dfu_fuses.merge(flash: fw_file)
+    flash(items)
+  end
+
+  def flash_dfu_bootloader
+    fw_file = 'ATMega32U4-usbdevice_dfu-1_0_0.hex'
     items = dfu_fuses.merge(flash: fw_file)
     flash(items)
   end
