@@ -15,6 +15,7 @@ class Flasher
     while true do
       success = device_connected?
       if success
+        sleep 1
         puts
         puts '🆗  Device found, flashing...'
         `cp #{file} /Volumes/RPI-RP2/`
@@ -25,7 +26,7 @@ class Flasher
           puts '🛑  Device flashing unsuccessful, try again'
         end
         play_status_sound(flash_success)
-        sleep 3
+        sleep 1
         show_searching_message
       else
         print '.'
@@ -47,4 +48,4 @@ class Flasher
 end
 
 flasher = Flasher.new()
-flasher.bulk_flash('sinc/keebio_sinc_rev3_via.uf2')
+flasher.bulk_flash('sinc/keebio_sinc_rev3_via-2023-04-05_wde.uf2')
