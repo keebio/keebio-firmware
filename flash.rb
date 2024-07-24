@@ -81,6 +81,12 @@ class Flasher
     flash(items)
   end
 
+  def flash_32a_bootloader
+    fw_file = 'atmega32a_bootloader.hex'
+    items =  { lfuse: '0x1f:m', hfuse: '0xc0:m', flash: fw_file }
+    flash(items)
+  end
+
   def flash_iris_r3
     files = {
       flash: "#{__dir__}/iris-r3/keebio_iris_rev3_via_production.hex",
